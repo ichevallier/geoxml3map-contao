@@ -1,0 +1,183 @@
+<style type="text/css">
+.map-responsive{overflow:hidden;padding-bottom:56.25%;position:relative;height:0;}
+.map-responsive iframe{left:0;top:0;height:100%; width:100%;position:absolute;}
+</style>
+<?php
+
+/* ----------------------------------------------------------------------------------------------------------------- 
+ * Markers Map
+ * ----------------------------------------------------------------------------------------------------------------- */
+
+$macarte ='';
+$search_list ='';
+foreach($this->Marker_data AS $element) : 
+    $cat_marker[$element['type']][] = $element;
+endforeach;
+
+// count number of distributeur type
+$count_cat_distributeur = count($cat_marker);
+
+if(!empty($cat_marker)){
+foreach($cat_marker AS $key => $elemente) : 
+
+    // Initialize count for each type
+    $testcount[$key] = -1; // 0
+    foreach($cat_marker[$key] AS $element) : 
+
+        // count
+        $testcount[$key]++; 
+        
+        $macarte .= "maCarte.addMarker('<p><strong>".addslashes($element['title'])."', '".addslashes($element['title'])."','http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=".$element['number']."|ef5c30|000000', ".$element['center'].",".$element['type'].",".$testcount[$key].", true);";
+
+        $search_list .= '
+                        <li class="mix '.$element['type'].'">
+                            <div class="profile-content"><div style="float:left; padding-right: 5px; padding-bottom: 30px;"><a class="plus" href="javascript:kmlClick('.$testcount[$key].');"><img src="http://maps.google.com/mapfiles/ms/icons/red-dot.png"></a></div>
+                                <div class="number" style="display:none;">'.$element['number'].'</div>
+                                <div class="title">'.$element['title'].'</div>
+                                <div class="address">'.$element['address'].'<br><span class="cp">'.$element['codePostal'].'</span> <span class="city">'.$element['city'].'</span></div>
+                            </div>
+                        </li>'; 
+    endforeach;
+endforeach;
+}
+?>
+<div id="map_revendeurs">
+    <div id="search-profile-responsive">
+     <i class="fa fa-times" aria-hidden="true"></i>
+    </div>
+    <div id="search-profile">
+        <div class="caption"><?php echo $GLOBALS['TL_LANG']['MOD']['marker_legend'];?></div>
+        <form id="profileform">
+        <div class="before-input"><i class="fa fa-search" aria-hidden="true"></i></div><input id="input" placeholder="<?php echo $GLOBALS['TL_LANG']['MOD']['distributeur_placeholder'];?>">
+        </form>
+        <div id="list-profile">
+            <div id="profileMap" class="row">
+                <ul class="label-listing " id="Grid" style="width:320px;">
+                <?php echo $search_list;?>
+                </ul>
+            </div>
+            <div class="navigation-profile">
+                <div class="pager-list">
+                  <!-- Pagination buttons will be generated here -->
+                </div>
+                <div class="no-match-list">
+                  <!-- No element -->
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="row">
+      <div class="col-md-12">
+       
+        <div id='map' class='map_fiche'>
+            <noscript><p>Markers</p></noscript>
+        </div>
+      </div>
+    </div> 
+
+<!-- indexer::stop -->
+</div>
+<?php //if ($_SERVER['SERVER_NAME'] =='localhost') :?>
+     <script type="text/javascript" src="system/modules/geoxml3map-contao/assets/geoxml3/kmz/geoxml3.js"></script>
+<?php //endif;?>
+
+<script type="text/javascript">
+  //<![CDATA[
+  var geoXml        = null;
+  var geoXmlDoc     = null;
+  var map           = null;
+  var myLatLng      = null;
+  var myGeoXml3Zoom = true;
+  var sidebarHtml   = "";
+  var infowindow    = null;
+  var kmlLayer      = null;
+  var filename      = 'system/modules/geoxml3map-contao/assets/kml/marker_kml.php?action=all';
+  //var geocoder = new google.maps.Geocoder();
+  
+  function initialize() {
+    // latlng depends country
+    <?php 
+      $map_latlng = $this->Marker_type_center;
+    ?>
+    myLatLng    = new google.maps.LatLng(<?php echo $map_latlng;?>);
+
+    // these set the initial center, zoom and maptype for the map 
+    var lat     = 47.3;
+    var lng     = 0.40;
+    var zoom    = 6;
+    var tilt    = 45;
+    var maptype = google.maps.MapTypeId.ROADMAP;
+
+    
+    var myOptions = {
+        zoom: zoom,
+        center: myLatLng,
+        tilt: tilt,
+        mapTypeId: maptype
+    };
+    map = new google.maps.Map(document.getElementById("map"),myOptions);
+    infowindow = new google.maps.InfoWindow({});
+
+    geoXml = new geoXML3.parser({map: map,infoWindow: infowindow,singleInfoWindow: true,afterParse: useTheData});
+    geoXml.parse(filename);
+  
+  };
+
+  function kmlClick(pm) {
+     if (geoXml.docs[0].placemarks[pm].marker.getMap()) {
+        google.maps.event.trigger(geoXml.docs[0].placemarks[pm].marker,"click");
+     } else {
+        geoXmlDoc.placemarks[pm].marker.setMap(map);
+        google.maps.event.trigger(geoXmlDoc.placemarks[pm].marker,"click");
+     }
+  }
+
+  function geoxmlErrorHandler(doc){
+    showParseError();
+    alert("GEOXML3: failed parse");
+  }
+
+  function useTheData(doc){
+    var currentBounds = map.getBounds();
+    if (!currentBounds) currentBounds = new google.maps.LatLngBounds();
+
+    // Geodata handling goes here, using JSON properties of the doc object
+    geoXmlDoc = doc[0];
+    if (!geoXmlDoc || !geoXmlDoc.placemarks) return;
+    for (var i = 0; i < geoXmlDoc.placemarks.length; i++) {
+      // console.log(doc[0].markers[i].title);
+      var placemark = geoXmlDoc.placemarks[i];
+      if (placemark.marker) {
+        google.maps.event.addListener(placemark.marker,'click',function(evt) {
+        this.getMap().setCenter(this.getPosition());
+        this.getMap().setZoom(12);
+        });
+      }
+    }
+  };
+  
+  initialize();
+
+  jQuery(document).ready(function() {
+        
+        $("#profileform").submit(function(e) {
+            e.preventDefault();
+            var $this = $(this); //form
+            var search_value = $('#input').val();
+            search_profile(search_value,<?php echo $this->marker_list;?>);
+        });
+        $("#search-profile-responsive").click(function(e) {
+           $("#list-profile").toggle();
+        });
+    });
+//]]>
+</script>
+<?php 
+/*
+// eg : kmlClick
+echo '<a href="javascript:kmlClick(2);">marker #2</a>
+<a href="javascript:kmlClick(1);">marker #1</a>
+<a href="javascript:kmlClick(0);">marker #0</a>';
+*/
+?>
+

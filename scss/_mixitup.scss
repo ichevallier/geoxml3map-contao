@@ -1,0 +1,82 @@
+/* ------ MIXITUP ------ */
+#Grid { 
+    padding-left:0px;
+    font-size:12px;
+    .mix {
+        /*opacity: 0;*/
+        display: none;
+    }
+    li {
+        margin:5px 5px 5px 5px;
+        float:left;
+        display: block;
+       
+        a {
+            
+            color : #2E454B;
+            &:hover {
+                color : #ef5c30;
+                text-decoration: none;
+            }
+        }
+    }
+}
+
+.mixdiv {
+    width: 200px;height: 40px;
+    border:1px #2E454B solid;
+    position: relative; 
+    text-align: center;
+    padding-bottom: 15px;
+    padding-top: 10px;
+}
+
+#tri ul { 
+    padding-left:0px; 
+}
+
+.filter { 
+    background: none repeat scroll 0 0 #fff;
+    -moz-border-radius: 20px;
+    border-radius: 5px;
+    border:1px solid #ef5c30;
+    color: #0f1f39; 
+    cursor: pointer;
+    display: inline-block;
+    font-size: 12px;
+    height: 30px;
+    line-height: 30px;	
+    list-style-type: none;	
+    margin-bottom: 4%;	
+    text-align: center;	
+    vertical-align: top;
+    /*min-width:85px;*/	padding:0 25px;	
+    text-transform:uppercase;
+    font-weight: bold;
+    
+    &:hover,
+    &.active {
+        background: none repeat scroll 0 0 #fff;
+    }
+}
+span.pager { 
+    display:inline-block;
+    vertical-align:top;
+    padding:5px;
+    border:1px solid silver;
+    border-radius:3px;
+    cursor:pointer;
+    margin:0px;
+}
+div.pager-list { 
+    text-align:center;
+    margin-left:10px;
+    //margin-top:10px;
+    span.active{
+        color:#FF5A32;
+        background: #fff;
+    }
+    span:hover{
+        border-color:#FF5A32;
+    }
+}
