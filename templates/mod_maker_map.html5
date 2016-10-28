@@ -88,7 +88,7 @@ endforeach;
   var map           = null;
   var myLatLng      = null;
   var myGeoXml3Zoom = true;
-  var sidebarHtml   = "";
+  //var sidebarHtml   = "";
   var infowindow    = null;
   var kmlLayer      = null;
   var filename      = 'system/modules/geoxml3map-contao/assets/kml/marker_kml.php?action=all';
